@@ -1,13 +1,18 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+func top(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "pong"})
+}
 
 func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run()
+	router := gin.Default()
+	router.GET("/", top)
+
+	router.Run(":3000")
 }

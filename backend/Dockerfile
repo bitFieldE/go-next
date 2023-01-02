@@ -1,13 +1,15 @@
 # ベースとなるDockerイメージ指定
 FROM golang:1.18.1-alpine
+
+ENV TZ /usr/share/zoneinfo/Asia/Tokyo
+
 WORKDIR /app
-RUN go mod init backend
-RUN go get github.com/gin-gonic/gin \
-    github.com/jinzhu/gorm \
-# RUN mkdir /go/src/backend
-# WORKDIR /go/src/backend
-# COPY ./app /go/src/backend
-# VOLUME /go/src/backend
-# RUN go mod download
-# EXPOSE 3000
-CMD "go" "run" "main.go"
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY *.go ./
+
+RUN go build -o /main
+
+CMD [ "/main" ]

@@ -1,4 +1,4 @@
-module backend
+module go-next/backend
 
 go 1.18
 
