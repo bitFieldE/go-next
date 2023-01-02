@@ -20,23 +20,23 @@ services:
   # #     FRONTEND_DOMAIN: "localhost:$FRONTEND_PORT"
   # #     BACKEND_URL: "http://localhost:$BACKEND_PORT"   
     volumes:
-      - ./backend:/app
+      - .:/go/src/app
   #   links:
   #     - db
     ports:
-      - "3000:3000"
+      - "$BACKEND_PORT:$CONTAINER_PORT"
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     args:
-  #       WORKDIR: $WORKDIR
-  #       CONTAINER_PORT: $CONTAINER_PORT
-  #       BACKEND_URL: "http://localhost:$BACKEND_PORT"
-  #   volumes:
-  #     - ./frontend:/$WORKDIR
-  #   command: yarn dev
-  #   ports:
-  #     - "$FRONTEND_PORT:$CONTAINER_PORT"
-  #   depends_on:
-  #     - backend
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        WORKDIR: $WORKDIR
+        CONTAINER_PORT: $CONTAINER_PORT
+        BACKEND_URL: "http://localhost:$BACKEND_PORT"
+    volumes:
+      - ./frontend:/$WORKDIR
+    command: yarn dev
+    ports:
+      - "$FRONTEND_PORT:$CONTAINER_PORT"
+    # depends_on:
+    #   - backend
