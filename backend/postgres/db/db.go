@@ -1,4 +1,4 @@
-package models
+package db
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ var db *gorm.DB
 
 func InitDB() {
 	connectDB()
-	db.AutoMigrate(&Player{})
+	db.AutoMigrate()
 }
 
 func connectDB() {

@@ -31,7 +31,7 @@ var Db DbConfig
 var Server ServerConfig
 
 func init() {
-	_, err := toml.DecodeFile("config.toml", &Config)
+	_, err := toml.DecodeFile("env/dev.toml", &Config)
 	Db.Password = os.Getenv("DB_PASSWORD")
 	Db.User = os.Getenv("DB_USER")
 	Db.Port = os.Getenv("DB_PORT")

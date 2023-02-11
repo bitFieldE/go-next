@@ -1,18 +1,13 @@
 package main
 
 import (
-	"net/http"
+	routers "github.com/RkAirforce/go-next/backend/router"
 
 	"github.com/gin-gonic/gin"
 )
 
-func top(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Hello, Gopher!"})
-}
-
 func main() {
 	router := gin.Default()
-	router.GET("/", top)
-
+	routers.InitRouter(router)
 	router.Run(":3000")
 }
