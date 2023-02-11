@@ -19,7 +19,8 @@ const Home = (props: Props) => {
 // サーバサイドで実行する処理(getServerSideProps)を定義する
 export const getServerSideProps = async () => {
   // APIやDBからのデータ取得処理などを記載
-  const res = await fetch(process.env.API_BASE_URL)
+  const res = await fetch(process.env.API_BASE_URL + '/api/v1/')
+  console.log(res)
   const data = await res.json()
   
   const props = data
