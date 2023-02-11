@@ -7,7 +7,7 @@ import (
 )
 
 func top(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "pong"})
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Hello, Gopher!"})
 }
 
 func main() {
