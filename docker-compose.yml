@@ -15,8 +15,8 @@ services:
       context: ./backend
     volumes:
       - ./backend:/$WORKDIR
-  #   links:
-  #     - db
+    links:
+      - db
     ports:
       - "$BACKEND_PORT:$CONTAINER_PORT"
   nginx:
@@ -41,5 +41,5 @@ services:
     command: yarn dev
     ports:
       - "$FRONTEND_PORT:$CONTAINER_PORT"
-    # depends_on:
-    #   - backend
+    depends_on:
+      - backend
