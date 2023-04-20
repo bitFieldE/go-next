@@ -12,6 +12,7 @@ const Home = (props: Props) => {
   return (
     <div>
       <h1>{props.message}</h1>
+      <p>メッセージ</p>
     </div>
   );
 }
@@ -20,9 +21,7 @@ const Home = (props: Props) => {
 export const getServerSideProps = async () => {
   // APIやDBからのデータ取得処理などを記載
   const res = await fetch(process.env.API_BASE_URL + '/api/v1/')
-  console.log(res)
   const data = await res.json()
-  
   const props = data
 
   return {
