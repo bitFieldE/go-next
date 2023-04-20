@@ -1,20 +1,26 @@
 version: '3'
 services:
   db:
-    image: postgres:alpine
+    image: postgres:15.1-alpine
+    container_name: db
     environment:
       TZ: UTC
       PGTZ: UTC
       POSTGRES_PASSWORD: $DATABASE_PASSWORD
       POSTGRES_USER: $DATABASE_USERNAME
       POSTGRES_DB: $DATABASE_NAME
+      POSTGRES_HOST: $DATABASE_HOST
+    volumes:
+      - psql-db-data:/var/lib/postgresql/data
+      - ./backend/db/init:/docker-entrypoint-initdb.d
     ports:
       - "$DATABASE_PORT:$DATABASE_PORT"
   backend:
+    container_name: backend
     build:
       context: ./backend
     volumes:
-      - ./backend:/$WORKDIR
+      - ./backend:/github.com/RkAirforce/go-next/backend
     links:
       - db
     ports:
@@ -43,3 +49,5 @@ services:
       - "$FRONTEND_PORT:$CONTAINER_PORT"
     depends_on:
       - backend
+volumes:
+  psql-db-data:

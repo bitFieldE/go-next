@@ -1,14 +1,22 @@
 # ベースとなるDockerイメージ指定
-FROM golang:1.18.1-alpine
+FROM golang:1.20.3-alpine as dev
 
-WORKDIR /app
+COPY . /github.com/RkAirforce/go-next/backend
+WORKDIR /github.com/RkAirforce/go-next/backend
+
 ENV TZ /usr/share/zoneinfo/Asia/Tokyo
+ENV GO111MODULE=on
 
 COPY *.go ./
 COPY go.mod go.sum ./
-RUN go mod download
-# RUN go get -u github.com/gin-gonic/gin && \
-#   go get github.com/jinzhu/gorm && \
-#   go get github.com/jinzhu/gorm/dialects/postgres && \
-RUN go install github.com/cosmtrek/air@latest
+RUN apk update && \
+  apk add --no-cache git && \
+  apk add --update gcc musl-dev && \
+  go mod download && \
+  go get -u github.com/gin-gonic/gin && \
+  go install github.com/pressly/goose/v3/cmd/goose@latest && \
+  go install github.com/cosmtrek/air@latest && \
+  go install github.com/volatiletech/sqlboiler/v4@latest && \
+  go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
+
 CMD ["air", "-c", ".air.toml"]

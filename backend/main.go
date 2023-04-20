@@ -1,15 +1,17 @@
 package main
 
 import (
-	db "github.com/RkAirforce/go-next/backend/postgres/db"
+	"github.com/RkAirforce/go-next/backend/config"
+	db "github.com/RkAirforce/go-next/backend/db"
 	routers "github.com/RkAirforce/go-next/backend/router"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	router := gin.Default()
 	db.InitDB()
+	defer db.Close()
+	router := gin.Default()
 	routers.InitRouter(router)
-	router.Run(":3000")
+	router.Run(":" + config.Server.Port)
 }

@@ -7,5 +7,5 @@ import (
 )
 
 func GetTop(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Hello, Gopher!"})
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Hello, Go!"})
 }

@@ -12,7 +12,7 @@ const Home = (props: Props) => {
   return (
     <div>
       <h1>{props.message}</h1>
-      <p>テスト</p>
+      <p>メッセージ</p>
     </div>
   );
 }
