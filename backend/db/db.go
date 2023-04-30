@@ -4,19 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/RkAirforce/go-next/backend/config"
+	"github.com/bitFieldE/go-next/backend/config"
 	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
-
-func InitDB() {
-	connectDB()
-}
-
-func connectDB() {
-	var err error
-	db, err = sql.Open(
+func ConnectDB() *sql.DB {
+	db, err := sql.Open(
 		"postgres",
 		fmt.Sprintf(
 			"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable TimeZone=Asia/Tokyo",
@@ -30,9 +23,7 @@ func connectDB() {
 	if err != nil {
 		panic(err)
 	}
+	db.Close()
 
-}
-
-func Close() {
-	defer db.Close()
+	return db
 }
