@@ -9,6 +9,7 @@ import (
 )
 
 func ConnectDB() *sql.DB {
+	var err error
 	db, err := sql.Open(
 		"postgres",
 		fmt.Sprintf(
@@ -23,7 +24,6 @@ func ConnectDB() *sql.DB {
 	if err != nil {
 		panic(err)
 	}
-	db.Close()
 
 	return db
 }
