@@ -1,8 +1,10 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL
+  id serial PRIMARY KEY,
+  name  character varying(100) NOT NULL,
+  email character varying(255) NOT NULL,
+  password character varying(255) NOT NULL
 );
 -- +goose StatementEnd
 

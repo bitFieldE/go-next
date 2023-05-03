@@ -20,7 +20,7 @@ services:
     build:
       context: ./backend
     volumes:
-      - ./backend:/github.com/RkAirforce/go-next/backend
+      - ./backend:/github.com/bitFieldE/go-next/backend
     links:
       - db
     ports:

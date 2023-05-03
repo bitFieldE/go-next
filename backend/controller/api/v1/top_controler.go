@@ -3,6 +3,8 @@ package v1
 import (
 	"net/http"
 
+	_ "github.com/lib/pq"
+
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,8 +1,8 @@
 # ベースとなるDockerイメージ指定
 FROM golang:1.20.3-alpine as dev
 
-COPY . /github.com/RkAirforce/go-next/backend
-WORKDIR /github.com/RkAirforce/go-next/backend
+COPY . /github.com/bitFieldE/go-next/backend
+WORKDIR /github.com/bitFieldE/go-next/backend
 
 ENV TZ /usr/share/zoneinfo/Asia/Tokyo
 ENV GO111MODULE=on

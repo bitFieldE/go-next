@@ -3,7 +3,7 @@ package routers
 import (
 	"log"
 
-	v1 "github.com/RkAirforce/go-next/backend/controller/api/v1"
+	v1 "github.com/bitFieldE/go-next/backend/controller/api/v1"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -25,6 +25,7 @@ func InitRouter(r *gin.Engine) {
 	namespace := r.Group("/api/v1")
 	{
 		namespace.GET("/", v1.GetTop)
+		namespace.GET("/users", v1.GetUsers)
 	}
 
 }
