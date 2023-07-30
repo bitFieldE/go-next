@@ -13,69 +13,98 @@ import "testing"
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersions)
+	t.Run("LocationPlaces", testLocationPlaces)
+	t.Run("Locations", testLocations)
 	t.Run("Users", testUsers)
 }
 
 func TestDelete(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsDelete)
+	t.Run("LocationPlaces", testLocationPlacesDelete)
+	t.Run("Locations", testLocationsDelete)
 	t.Run("Users", testUsersDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsQueryDeleteAll)
+	t.Run("LocationPlaces", testLocationPlacesQueryDeleteAll)
+	t.Run("Locations", testLocationsQueryDeleteAll)
 	t.Run("Users", testUsersQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsSliceDeleteAll)
+	t.Run("LocationPlaces", testLocationPlacesSliceDeleteAll)
+	t.Run("Locations", testLocationsSliceDeleteAll)
 	t.Run("Users", testUsersSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsExists)
+	t.Run("LocationPlaces", testLocationPlacesExists)
+	t.Run("Locations", testLocationsExists)
 	t.Run("Users", testUsersExists)
 }
 
 func TestFind(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsFind)
+	t.Run("LocationPlaces", testLocationPlacesFind)
+	t.Run("Locations", testLocationsFind)
 	t.Run("Users", testUsersFind)
 }
 
 func TestBind(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsBind)
+	t.Run("LocationPlaces", testLocationPlacesBind)
+	t.Run("Locations", testLocationsBind)
 	t.Run("Users", testUsersBind)
 }
 
 func TestOne(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsOne)
+	t.Run("LocationPlaces", testLocationPlacesOne)
+	t.Run("Locations", testLocationsOne)
 	t.Run("Users", testUsersOne)
 }
 
 func TestAll(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsAll)
+	t.Run("LocationPlaces", testLocationPlacesAll)
+	t.Run("Locations", testLocationsAll)
 	t.Run("Users", testUsersAll)
 }
 
 func TestCount(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsCount)
+	t.Run("LocationPlaces", testLocationPlacesCount)
+	t.Run("Locations", testLocationsCount)
 	t.Run("Users", testUsersCount)
 }
 
 func TestHooks(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsHooks)
+	t.Run("LocationPlaces", testLocationPlacesHooks)
+	t.Run("Locations", testLocationsHooks)
 	t.Run("Users", testUsersHooks)
 }
 
 func TestInsert(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsInsert)
 	t.Run("GooseDBVersions", testGooseDBVersionsInsertWhitelist)
+	t.Run("LocationPlaces", testLocationPlacesInsert)
+	t.Run("LocationPlaces", testLocationPlacesInsertWhitelist)
+	t.Run("Locations", testLocationsInsert)
+	t.Run("Locations", testLocationsInsertWhitelist)
 	t.Run("Users", testUsersInsert)
 	t.Run("Users", testUsersInsertWhitelist)
 }
 
 // TestToOne tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOne(t *testing.T) {}
+func TestToOne(t *testing.T) {
+	t.Run("LocationPlaceToUserUsingUser", testLocationPlaceToOneUserUsingUser)
+	t.Run("LocationToLocationPlaceUsingLocationPlace", testLocationToOneLocationPlaceUsingLocationPlace)
+}
 
 // TestOneToOne tests cannot be run in parallel
 // or deadlocks can occur.
@@ -83,11 +112,17 @@ func TestOneToOne(t *testing.T) {}
 
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToMany(t *testing.T) {}
+func TestToMany(t *testing.T) {
+	t.Run("LocationPlaceToLocations", testLocationPlaceToManyLocations)
+	t.Run("UserToLocationPlaces", testUserToManyLocationPlaces)
+}
 
 // TestToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOneSet(t *testing.T) {}
+func TestToOneSet(t *testing.T) {
+	t.Run("LocationPlaceToUserUsingLocationPlaces", testLocationPlaceToOneSetOpUserUsingUser)
+	t.Run("LocationToLocationPlaceUsingLocations", testLocationToOneSetOpLocationPlaceUsingLocationPlace)
+}
 
 // TestToOneRemove tests cannot be run in parallel
 // or deadlocks can occur.
@@ -103,7 +138,10 @@ func TestOneToOneRemove(t *testing.T) {}
 
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToManyAdd(t *testing.T) {}
+func TestToManyAdd(t *testing.T) {
+	t.Run("LocationPlaceToLocations", testLocationPlaceToManyAddOpLocations)
+	t.Run("UserToLocationPlaces", testUserToManyAddOpLocationPlaces)
+}
 
 // TestToManySet tests cannot be run in parallel
 // or deadlocks can occur.
@@ -115,25 +153,35 @@ func TestToManyRemove(t *testing.T) {}
 
 func TestReload(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsReload)
+	t.Run("LocationPlaces", testLocationPlacesReload)
+	t.Run("Locations", testLocationsReload)
 	t.Run("Users", testUsersReload)
 }
 
 func TestReloadAll(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsReloadAll)
+	t.Run("LocationPlaces", testLocationPlacesReloadAll)
+	t.Run("Locations", testLocationsReloadAll)
 	t.Run("Users", testUsersReloadAll)
 }
 
 func TestSelect(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsSelect)
+	t.Run("LocationPlaces", testLocationPlacesSelect)
+	t.Run("Locations", testLocationsSelect)
 	t.Run("Users", testUsersSelect)
 }
 
 func TestUpdate(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsUpdate)
+	t.Run("LocationPlaces", testLocationPlacesUpdate)
+	t.Run("Locations", testLocationsUpdate)
 	t.Run("Users", testUsersUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsSliceUpdateAll)
+	t.Run("LocationPlaces", testLocationPlacesSliceUpdateAll)
+	t.Run("Locations", testLocationsSliceUpdateAll)
 	t.Run("Users", testUsersSliceUpdateAll)
 }
