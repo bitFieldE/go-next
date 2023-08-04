@@ -1,49 +1,3 @@
-// import React, { useEffect, useState } from 'react'
-// import useSWR from 'swr'
-// import type { NextPage } from 'next'
-// import styles from '../styles/Home.module.css'
-
-// type Props = {
-//   message: string
-// }
-
-// // ページコンポーネントを定義する
-// const Home = (props: Props) => {
-//   return (
-//     <div>
-//       <h1>{props.message}</h1>
-//       <p>メッセージ</p>
-//     </div>
-//   );
-// }
-
-// // サーバサイドで実行する処理(getServerSideProps)を定義する
-// export const getServerSideProps = async () => {
-//   // APIやDBからのデータ取得処理などを記載
-//   const res = await fetch(process.env.API_BASE_URL + '/api/v1/')
-//   const data = await res.json()
-//   const props = data
-
-//   return {
-//     props: props,
-//   };
-// }
-
-// export default Home
-
-// import Header from '../components/organisms/Header'
-// import { useTranslation } from "next-i18next"
-
-// export default function Index(): JSX.Element {
-//   const { t } = useTranslation('common')
-//   return (
-//     <>
-//       <Header />
-//       <h1>{t('title')}</h1>
-//     </>
-//   )
-// }
-
 import { useState } from 'react';
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -54,26 +8,42 @@ interface IndexProps {
   locale: string
 }
 
+export const getStaticProps: GetStaticProps<IndexProps> = async ({ locale }) => {
+  const translations = await serverSideTranslations(locale as string, ['common', 'index']);
+
+  return {
+    props: {
+      ...translations,
+      locale: locale as string,
+    },
+  }
+}
+
 const Index = () => {
   const { t } = useTranslation('index')
-  const [location, setLocation] = useState<string | null>(null);
-  
-  const getCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-          alert(`緯度: ${latitude}, 経度: ${longitude}`);
-        },
-        (error) => {
-          alert(error);
-        }
-      );
-    } else {
-      alert('Geolocationがサポートされていません');
+  const [location, setLocation] = useState<LocationResponse | ErrorResponse | null>(null);
+
+  const getCurrentLocation = async () => {
+    try {
+      if (!navigator.geolocation) throw new Error(t('index.geolocation_error'));
+
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+
+      const res = await getAddress(position);
+      setLocation(res);
+    } catch (error) {
+      setLocation({ error: t('index.geolocation_failure') });
     }
-  };
+  }
+
+  const getAddress = async (position: GeolocationPosition): Promise<LocationResponse | ErrorResponse> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/location/current_location?lon=${position.coords.longitude}&lat=${position.coords.latitude}`)
+    const data = await res.json()
+
+    return data
+  }
 
   return (
     <>
@@ -100,40 +70,13 @@ const Index = () => {
       <h1>{t('index.title')}</h1>
       <p>{t('index.description')}</p>
       <h1>{t('index.title')}</h1>
-      <p>{t('index.description')}</p>
-      <h1>{t('index.title')}</h1>
-      <p>{t('index.description')}</p>
-      <h1>{t('index.title')}</h1>
-      <p>{t('index.description')}</p>
-      <h1>{t('index.title')}</h1>
-      <p>{t('index.description')}</p>
-      <h1>{t('index.title')}</h1>
-      <p>{t('index.description')}</p>
-      <h1>{t('index.title')}</h1>
-      <p>{t('index.description')}</p>
-      <h1>{t('index.title')}</h1>
-      <p>{t('index.description')}</p>
-      <h1>{t('index.title')}</h1>
-      <p>{t('index.description')}</p>
-      <h1>{t('index.title')}</h1>
-      <p>{t('index.description')}</p>
+      <div>{typeof location === 'LocationResponse' ? <p>location?.Feature[0]?.Property?.Address</p> : null}</div>
 
       <Button size='sm' onClick={getCurrentLocation} colorScheme="teal">
         クリックしてください
       </Button>
     </>
   )
-}
-
-export const getStaticProps: GetStaticProps<IndexProps> = async ({ locale }) => {
-  const translations = await serverSideTranslations(locale as string, ['common', 'index']);
-
-  return {
-    props: {
-      ...translations,
-      locale: locale as string,
-    },
-  }
 }
 
 export default Index

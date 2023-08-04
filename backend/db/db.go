@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	"github.com/bitFieldE/go-next/backend/config"
 	_ "github.com/lib/pq"
@@ -22,6 +23,7 @@ func ConnectDB() *sql.DB {
 		),
 	)
 	if err != nil {
+		log.Printf("%s: could open PostgreSQL server", err)
 		panic(err)
 	}
 

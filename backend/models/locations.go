@@ -33,6 +33,18 @@ type Location struct {
 	L locationL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
+type LocationResponse struct {
+	Feature []struct {
+		Geometry struct {
+			Type        string `json:"Type"`
+			Coordinates string `json:"Coordinates"`
+		} `json:"Geometry"`
+		Property struct {
+			Address        string `json:"Address"`
+		} `json:"Property"`
+	} `json:"Feature"`
+}
+
 var LocationColumns = struct {
 	ID              string
 	LocationPlaceID string

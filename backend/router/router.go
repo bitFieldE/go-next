@@ -29,19 +29,11 @@ func InitRouter(r *gin.Engine) {
 			auth.GET("/signup", v1.SignUpHandler)
 			auth.POST("/login", v1.LoginHandler)
 		}
-		top := namespace.Group("/top")
-		{
-			top.GET("/", v1.GetTop)
-		}
-		users := namespace.Group("/users")
-		{
-			users.GET("", v1.GetUsers)
-			users.GET("/:id", v1.GetUser)
-		}
-		location := namespace.Group("/location")
-		{
-			location.GET("/currentLocation", v1.GetCurrentLocation)
-		}
+		namespace.GET("/top", v1.GetTop)
+		namespace.GET("/users", v1.GetUsers)
+		namespace.GET("/users/:id", v1.GetUser)
+		namespace.GET("/locations/current_location", v1.GetCurrentLocation)
+		namespace.POST("/locations", v1.ResiterLocation)
 	}
 
 }
