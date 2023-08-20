@@ -18,87 +18,127 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/volatiletech/sqlboiler/v4/queries/qmhelper"
+	"github.com/volatiletech/sqlboiler/v4/types"
 	"github.com/volatiletech/strmangle"
 )
 
 // Location is an object representing the database table.
 type Location struct {
-	ID              int       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	LocationPlaceID int       `boil:"location_place_id" json:"location_place_id" toml:"location_place_id" yaml:"location_place_id"`
-	Name            string    `boil:"name" json:"name" toml:"name" yaml:"name"`
-	CreatedAt       time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt       time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	ID        int           `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Address   string        `boil:"address" json:"address" toml:"address" yaml:"address"`
+	Latitude  types.Decimal `boil:"latitude" json:"latitude" toml:"latitude" yaml:"latitude"`
+	Longitude types.Decimal `boil:"longitude" json:"longitude" toml:"longitude" yaml:"longitude"`
+	CreatedAt time.Time     `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt time.Time     `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 
 	R *locationR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L locationL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
-type LocationResponse struct {
-	Feature []struct {
-		Geometry struct {
-			Type        string `json:"Type"`
-			Coordinates string `json:"Coordinates"`
-		} `json:"Geometry"`
-		Property struct {
-			Address        string `json:"Address"`
-		} `json:"Property"`
-	} `json:"Feature"`
-}
-
 var LocationColumns = struct {
-	ID              string
-	LocationPlaceID string
-	Name            string
-	CreatedAt       string
-	UpdatedAt       string
+	ID        string
+	Address   string
+	Latitude  string
+	Longitude string
+	CreatedAt string
+	UpdatedAt string
 }{
-	ID:              "id",
-	LocationPlaceID: "location_place_id",
-	Name:            "name",
-	CreatedAt:       "created_at",
-	UpdatedAt:       "updated_at",
+	ID:        "id",
+	Address:   "address",
+	Latitude:  "latitude",
+	Longitude: "longitude",
+	CreatedAt: "created_at",
+	UpdatedAt: "updated_at",
 }
 
 var LocationTableColumns = struct {
-	ID              string
-	LocationPlaceID string
-	Name            string
-	CreatedAt       string
-	UpdatedAt       string
+	ID        string
+	Address   string
+	Latitude  string
+	Longitude string
+	CreatedAt string
+	UpdatedAt string
 }{
-	ID:              "locations.id",
-	LocationPlaceID: "locations.location_place_id",
-	Name:            "locations.name",
-	CreatedAt:       "locations.created_at",
-	UpdatedAt:       "locations.updated_at",
+	ID:        "locations.id",
+	Address:   "locations.address",
+	Latitude:  "locations.latitude",
+	Longitude: "locations.longitude",
+	CreatedAt: "locations.created_at",
+	UpdatedAt: "locations.updated_at",
 }
 
 // Generated where
 
+type whereHelperstring struct{ field string }
+
+func (w whereHelperstring) EQ(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperstring) NEQ(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperstring) LT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperstring) LTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperstring) GT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperstring) GTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperstring) IN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+type whereHelpertypes_Decimal struct{ field string }
+
+func (w whereHelpertypes_Decimal) EQ(x types.Decimal) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelpertypes_Decimal) NEQ(x types.Decimal) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelpertypes_Decimal) LT(x types.Decimal) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpertypes_Decimal) LTE(x types.Decimal) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpertypes_Decimal) GT(x types.Decimal) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpertypes_Decimal) GTE(x types.Decimal) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
 var LocationWhere = struct {
-	ID              whereHelperint
-	LocationPlaceID whereHelperint
-	Name            whereHelperstring
-	CreatedAt       whereHelpertime_Time
-	UpdatedAt       whereHelpertime_Time
+	ID        whereHelperint
+	Address   whereHelperstring
+	Latitude  whereHelpertypes_Decimal
+	Longitude whereHelpertypes_Decimal
+	CreatedAt whereHelpertime_Time
+	UpdatedAt whereHelpertime_Time
 }{
-	ID:              whereHelperint{field: "\"locations\".\"id\""},
-	LocationPlaceID: whereHelperint{field: "\"locations\".\"location_place_id\""},
-	Name:            whereHelperstring{field: "\"locations\".\"name\""},
-	CreatedAt:       whereHelpertime_Time{field: "\"locations\".\"created_at\""},
-	UpdatedAt:       whereHelpertime_Time{field: "\"locations\".\"updated_at\""},
+	ID:        whereHelperint{field: "\"locations\".\"id\""},
+	Address:   whereHelperstring{field: "\"locations\".\"address\""},
+	Latitude:  whereHelpertypes_Decimal{field: "\"locations\".\"latitude\""},
+	Longitude: whereHelpertypes_Decimal{field: "\"locations\".\"longitude\""},
+	CreatedAt: whereHelpertime_Time{field: "\"locations\".\"created_at\""},
+	UpdatedAt: whereHelpertime_Time{field: "\"locations\".\"updated_at\""},
 }
 
 // LocationRels is where relationship names are stored.
 var LocationRels = struct {
-	LocationPlace string
+	LocationInformations string
 }{
-	LocationPlace: "LocationPlace",
+	LocationInformations: "LocationInformations",
 }
 
 // locationR is where relationships are stored.
 type locationR struct {
-	LocationPlace *LocationPlace `boil:"LocationPlace" json:"LocationPlace" toml:"LocationPlace" yaml:"LocationPlace"`
+	LocationInformations LocationInformationSlice `boil:"LocationInformations" json:"LocationInformations" toml:"LocationInformations" yaml:"LocationInformations"`
 }
 
 // NewStruct creates a new relationship struct
@@ -106,19 +146,19 @@ func (*locationR) NewStruct() *locationR {
 	return &locationR{}
 }
 
-func (r *locationR) GetLocationPlace() *LocationPlace {
+func (r *locationR) GetLocationInformations() LocationInformationSlice {
 	if r == nil {
 		return nil
 	}
-	return r.LocationPlace
+	return r.LocationInformations
 }
 
 // locationL is where Load methods for each relationship are stored.
 type locationL struct{}
 
 var (
-	locationAllColumns            = []string{"id", "location_place_id", "name", "created_at", "updated_at"}
-	locationColumnsWithoutDefault = []string{"location_place_id", "name"}
+	locationAllColumns            = []string{"id", "address", "latitude", "longitude", "created_at", "updated_at"}
+	locationColumnsWithoutDefault = []string{"address", "latitude", "longitude"}
 	locationColumnsWithDefault    = []string{"id", "created_at", "updated_at"}
 	locationPrimaryKeyColumns     = []string{"id"}
 	locationGeneratedColumns      = []string{}
@@ -402,20 +442,23 @@ func (q locationQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (b
 	return count > 0, nil
 }
 
-// LocationPlace pointed to by the foreign key.
-func (o *Location) LocationPlace(mods ...qm.QueryMod) locationPlaceQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.LocationPlaceID),
+// LocationInformations retrieves all the location_information's LocationInformations with an executor.
+func (o *Location) LocationInformations(mods ...qm.QueryMod) locationInformationQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
 	}
 
-	queryMods = append(queryMods, mods...)
+	queryMods = append(queryMods,
+		qm.Where("\"location_information\".\"location_id\"=?", o.ID),
+	)
 
-	return LocationPlaces(queryMods...)
+	return LocationInformations(queryMods...)
 }
 
-// LoadLocationPlace allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (locationL) LoadLocationPlace(ctx context.Context, e boil.ContextExecutor, singular bool, maybeLocation interface{}, mods queries.Applicator) error {
+// LoadLocationInformations allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (locationL) LoadLocationInformations(ctx context.Context, e boil.ContextExecutor, singular bool, maybeLocation interface{}, mods queries.Applicator) error {
 	var slice []*Location
 	var object *Location
 
@@ -446,8 +489,7 @@ func (locationL) LoadLocationPlace(ctx context.Context, e boil.ContextExecutor, 
 		if object.R == nil {
 			object.R = &locationR{}
 		}
-		args = append(args, object.LocationPlaceID)
-
+		args = append(args, object.ID)
 	} else {
 	Outer:
 		for _, obj := range slice {
@@ -456,13 +498,12 @@ func (locationL) LoadLocationPlace(ctx context.Context, e boil.ContextExecutor, 
 			}
 
 			for _, a := range args {
-				if a == obj.LocationPlaceID {
+				if a == obj.ID {
 					continue Outer
 				}
 			}
 
-			args = append(args, obj.LocationPlaceID)
-
+			args = append(args, obj.ID)
 		}
 	}
 
@@ -471,8 +512,8 @@ func (locationL) LoadLocationPlace(ctx context.Context, e boil.ContextExecutor, 
 	}
 
 	query := NewQuery(
-		qm.From(`location_places`),
-		qm.WhereIn(`location_places.id in ?`, args...),
+		qm.From(`location_information`),
+		qm.WhereIn(`location_information.location_id in ?`, args...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -480,51 +521,47 @@ func (locationL) LoadLocationPlace(ctx context.Context, e boil.ContextExecutor, 
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load LocationPlace")
+		return errors.Wrap(err, "failed to eager load location_information")
 	}
 
-	var resultSlice []*LocationPlace
+	var resultSlice []*LocationInformation
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice LocationPlace")
+		return errors.Wrap(err, "failed to bind eager loaded slice location_information")
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for location_places")
+		return errors.Wrap(err, "failed to close results in eager load on location_information")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for location_places")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for location_information")
 	}
 
-	if len(locationPlaceAfterSelectHooks) != 0 {
+	if len(locationInformationAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
 				return err
 			}
 		}
 	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
 	if singular {
-		foreign := resultSlice[0]
-		object.R.LocationPlace = foreign
-		if foreign.R == nil {
-			foreign.R = &locationPlaceR{}
+		object.R.LocationInformations = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &locationInformationR{}
+			}
+			foreign.R.Location = object
 		}
-		foreign.R.Locations = append(foreign.R.Locations, object)
 		return nil
 	}
 
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if local.LocationPlaceID == foreign.ID {
-				local.R.LocationPlace = foreign
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.LocationID {
+				local.R.LocationInformations = append(local.R.LocationInformations, foreign)
 				if foreign.R == nil {
-					foreign.R = &locationPlaceR{}
+					foreign.R = &locationInformationR{}
 				}
-				foreign.R.Locations = append(foreign.R.Locations, local)
+				foreign.R.Location = local
 				break
 			}
 		}
@@ -533,50 +570,56 @@ func (locationL) LoadLocationPlace(ctx context.Context, e boil.ContextExecutor, 
 	return nil
 }
 
-// SetLocationPlace of the location to the related item.
-// Sets o.R.LocationPlace to related.
-// Adds o to related.R.Locations.
-func (o *Location) SetLocationPlace(ctx context.Context, exec boil.ContextExecutor, insert bool, related *LocationPlace) error {
+// AddLocationInformations adds the given related objects to the existing relationships
+// of the location, optionally inserting them as new records.
+// Appends related to o.R.LocationInformations.
+// Sets related.R.Location appropriately.
+func (o *Location) AddLocationInformations(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*LocationInformation) error {
 	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
+	for _, rel := range related {
+		if insert {
+			rel.LocationID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"location_information\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"location_id"}),
+				strmangle.WhereClause("\"", "\"", 2, locationInformationPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.LocationID = o.ID
 		}
 	}
 
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"locations\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"location_place_id"}),
-		strmangle.WhereClause("\"", "\"", 2, locationPrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	o.LocationPlaceID = related.ID
 	if o.R == nil {
 		o.R = &locationR{
-			LocationPlace: related,
+			LocationInformations: related,
 		}
 	} else {
-		o.R.LocationPlace = related
+		o.R.LocationInformations = append(o.R.LocationInformations, related...)
 	}
 
-	if related.R == nil {
-		related.R = &locationPlaceR{
-			Locations: LocationSlice{o},
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &locationInformationR{
+				Location: o,
+			}
+		} else {
+			rel.R.Location = o
 		}
-	} else {
-		related.R.Locations = append(related.R.Locations, o)
 	}
-
 	return nil
 }
 

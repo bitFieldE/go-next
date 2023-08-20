@@ -8,7 +8,7 @@ import "testing"
 func TestUpsert(t *testing.T) {
 	t.Run("GooseDBVersions", testGooseDBVersionsUpsert)
 
-	t.Run("LocationPlaces", testLocationPlacesUpsert)
+	t.Run("LocationInformations", testLocationInformationsUpsert)
 
 	t.Run("Locations", testLocationsUpsert)
 

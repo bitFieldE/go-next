@@ -494,68 +494,85 @@ func testLocationsInsertWhitelist(t *testing.T) {
 	}
 }
 
-func testLocationToOneLocationPlaceUsingLocationPlace(t *testing.T) {
+func testLocationToManyLocationInformations(t *testing.T) {
+	var err error
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
-	var local Location
-	var foreign LocationPlace
+	var a Location
+	var b, c LocationInformation
 
 	seed := randomize.NewSeed()
-	if err := randomize.Struct(seed, &local, locationDBTypes, false, locationColumnsWithDefault...); err != nil {
+	if err = randomize.Struct(seed, &a, locationDBTypes, true, locationColumnsWithDefault...); err != nil {
 		t.Errorf("Unable to randomize Location struct: %s", err)
 	}
-	if err := randomize.Struct(seed, &foreign, locationPlaceDBTypes, false, locationPlaceColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize LocationPlace struct: %s", err)
-	}
 
-	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
 
-	local.LocationPlaceID = foreign.ID
-	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err = randomize.Struct(seed, &b, locationInformationDBTypes, false, locationInformationColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, locationInformationDBTypes, false, locationInformationColumnsWithDefault...); err != nil {
 		t.Fatal(err)
 	}
 
-	check, err := local.LocationPlace().One(ctx, tx)
+	b.LocationID = a.ID
+	c.LocationID = a.ID
+
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := a.LocationInformations().All(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if check.ID != foreign.ID {
-		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
+	bFound, cFound := false, false
+	for _, v := range check {
+		if v.LocationID == b.LocationID {
+			bFound = true
+		}
+		if v.LocationID == c.LocationID {
+			cFound = true
+		}
 	}
 
-	ranAfterSelectHook := false
-	AddLocationPlaceHook(boil.AfterSelectHook, func(ctx context.Context, e boil.ContextExecutor, o *LocationPlace) error {
-		ranAfterSelectHook = true
-		return nil
-	})
+	if !bFound {
+		t.Error("expected to find b")
+	}
+	if !cFound {
+		t.Error("expected to find c")
+	}
 
-	slice := LocationSlice{&local}
-	if err = local.L.LoadLocationPlace(ctx, tx, false, (*[]*Location)(&slice), nil); err != nil {
+	slice := LocationSlice{&a}
+	if err = a.L.LoadLocationInformations(ctx, tx, false, (*[]*Location)(&slice), nil); err != nil {
 		t.Fatal(err)
 	}
-	if local.R.LocationPlace == nil {
-		t.Error("struct should have been eager loaded")
+	if got := len(a.R.LocationInformations); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
-	local.R.LocationPlace = nil
-	if err = local.L.LoadLocationPlace(ctx, tx, true, &local, nil); err != nil {
+	a.R.LocationInformations = nil
+	if err = a.L.LoadLocationInformations(ctx, tx, true, &a, nil); err != nil {
 		t.Fatal(err)
 	}
-	if local.R.LocationPlace == nil {
-		t.Error("struct should have been eager loaded")
+	if got := len(a.R.LocationInformations); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
-	if !ranAfterSelectHook {
-		t.Error("failed to run AfterSelect hook for relationship")
+	if t.Failed() {
+		t.Logf("%#v", check)
 	}
 }
 
-func testLocationToOneSetOpLocationPlaceUsingLocationPlace(t *testing.T) {
+func testLocationToManyAddOpLocationInformations(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
@@ -563,17 +580,17 @@ func testLocationToOneSetOpLocationPlaceUsingLocationPlace(t *testing.T) {
 	defer func() { _ = tx.Rollback() }()
 
 	var a Location
-	var b, c LocationPlace
+	var b, c, d, e LocationInformation
 
 	seed := randomize.NewSeed()
 	if err = randomize.Struct(seed, &a, locationDBTypes, false, strmangle.SetComplement(locationPrimaryKeyColumns, locationColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	if err = randomize.Struct(seed, &b, locationPlaceDBTypes, false, strmangle.SetComplement(locationPlacePrimaryKeyColumns, locationPlaceColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	if err = randomize.Struct(seed, &c, locationPlaceDBTypes, false, strmangle.SetComplement(locationPlacePrimaryKeyColumns, locationPlaceColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
+	foreigners := []*LocationInformation{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, locationInformationDBTypes, false, strmangle.SetComplement(locationInformationPrimaryKeyColumns, locationInformationColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
@@ -582,33 +599,51 @@ func testLocationToOneSetOpLocationPlaceUsingLocationPlace(t *testing.T) {
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
 
-	for i, x := range []*LocationPlace{&b, &c} {
-		err = a.SetLocationPlace(ctx, tx, i != 0, x)
+	foreignersSplitByInsertion := [][]*LocationInformation{
+		{&b, &c},
+		{&d, &e},
+	}
+
+	for i, x := range foreignersSplitByInsertion {
+		err = a.AddLocationInformations(ctx, tx, i != 0, x...)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if a.R.LocationPlace != x {
-			t.Error("relationship struct not set to correct value")
+		first := x[0]
+		second := x[1]
+
+		if a.ID != first.LocationID {
+			t.Error("foreign key was wrong value", a.ID, first.LocationID)
+		}
+		if a.ID != second.LocationID {
+			t.Error("foreign key was wrong value", a.ID, second.LocationID)
 		}
 
-		if x.R.Locations[0] != &a {
-			t.Error("failed to append to foreign relationship struct")
+		if first.R.Location != &a {
+			t.Error("relationship was not added properly to the foreign slice")
 		}
-		if a.LocationPlaceID != x.ID {
-			t.Error("foreign key was wrong value", a.LocationPlaceID)
-		}
-
-		zero := reflect.Zero(reflect.TypeOf(a.LocationPlaceID))
-		reflect.Indirect(reflect.ValueOf(&a.LocationPlaceID)).Set(zero)
-
-		if err = a.Reload(ctx, tx); err != nil {
-			t.Fatal("failed to reload", err)
+		if second.R.Location != &a {
+			t.Error("relationship was not added properly to the foreign slice")
 		}
 
-		if a.LocationPlaceID != x.ID {
-			t.Error("foreign key was wrong value", a.LocationPlaceID, x.ID)
+		if a.R.LocationInformations[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
+		}
+		if a.R.LocationInformations[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
+		}
+
+		count, err := a.LocationInformations().Count(ctx, tx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := int64((i + 1) * 2); count != want {
+			t.Error("want", want, "got", count)
 		}
 	}
 }
@@ -687,7 +722,7 @@ func testLocationsSelect(t *testing.T) {
 }
 
 var (
-	locationDBTypes = map[string]string{`ID`: `integer`, `LocationPlaceID`: `integer`, `Name`: `character varying`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`}
+	locationDBTypes = map[string]string{`ID`: `integer`, `Address`: `character varying`, `Latitude`: `numeric`, `Longitude`: `numeric`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`}
 	_               = bytes.MinRead
 )
 

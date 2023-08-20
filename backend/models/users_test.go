@@ -494,14 +494,14 @@ func testUsersInsertWhitelist(t *testing.T) {
 	}
 }
 
-func testUserToManyLocationPlaces(t *testing.T) {
+func testUserToManyLocationInformations(t *testing.T) {
 	var err error
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
 	var a User
-	var b, c LocationPlace
+	var b, c LocationInformation
 
 	seed := randomize.NewSeed()
 	if err = randomize.Struct(seed, &a, userDBTypes, true, userColumnsWithDefault...); err != nil {
@@ -512,10 +512,10 @@ func testUserToManyLocationPlaces(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err = randomize.Struct(seed, &b, locationPlaceDBTypes, false, locationPlaceColumnsWithDefault...); err != nil {
+	if err = randomize.Struct(seed, &b, locationInformationDBTypes, false, locationInformationColumnsWithDefault...); err != nil {
 		t.Fatal(err)
 	}
-	if err = randomize.Struct(seed, &c, locationPlaceDBTypes, false, locationPlaceColumnsWithDefault...); err != nil {
+	if err = randomize.Struct(seed, &c, locationInformationDBTypes, false, locationInformationColumnsWithDefault...); err != nil {
 		t.Fatal(err)
 	}
 
@@ -529,7 +529,7 @@ func testUserToManyLocationPlaces(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	check, err := a.LocationPlaces().All(ctx, tx)
+	check, err := a.LocationInformations().All(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -552,18 +552,18 @@ func testUserToManyLocationPlaces(t *testing.T) {
 	}
 
 	slice := UserSlice{&a}
-	if err = a.L.LoadLocationPlaces(ctx, tx, false, (*[]*User)(&slice), nil); err != nil {
+	if err = a.L.LoadLocationInformations(ctx, tx, false, (*[]*User)(&slice), nil); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(a.R.LocationPlaces); got != 2 {
+	if got := len(a.R.LocationInformations); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
-	a.R.LocationPlaces = nil
-	if err = a.L.LoadLocationPlaces(ctx, tx, true, &a, nil); err != nil {
+	a.R.LocationInformations = nil
+	if err = a.L.LoadLocationInformations(ctx, tx, true, &a, nil); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(a.R.LocationPlaces); got != 2 {
+	if got := len(a.R.LocationInformations); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
@@ -572,7 +572,7 @@ func testUserToManyLocationPlaces(t *testing.T) {
 	}
 }
 
-func testUserToManyAddOpLocationPlaces(t *testing.T) {
+func testUserToManyAddOpLocationInformations(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
@@ -580,15 +580,15 @@ func testUserToManyAddOpLocationPlaces(t *testing.T) {
 	defer func() { _ = tx.Rollback() }()
 
 	var a User
-	var b, c, d, e LocationPlace
+	var b, c, d, e LocationInformation
 
 	seed := randomize.NewSeed()
 	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	foreigners := []*LocationPlace{&b, &c, &d, &e}
+	foreigners := []*LocationInformation{&b, &c, &d, &e}
 	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, locationPlaceDBTypes, false, strmangle.SetComplement(locationPlacePrimaryKeyColumns, locationPlaceColumnsWithoutDefault)...); err != nil {
+		if err = randomize.Struct(seed, x, locationInformationDBTypes, false, strmangle.SetComplement(locationInformationPrimaryKeyColumns, locationInformationColumnsWithoutDefault)...); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -603,13 +603,13 @@ func testUserToManyAddOpLocationPlaces(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	foreignersSplitByInsertion := [][]*LocationPlace{
+	foreignersSplitByInsertion := [][]*LocationInformation{
 		{&b, &c},
 		{&d, &e},
 	}
 
 	for i, x := range foreignersSplitByInsertion {
-		err = a.AddLocationPlaces(ctx, tx, i != 0, x...)
+		err = a.AddLocationInformations(ctx, tx, i != 0, x...)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -631,14 +631,14 @@ func testUserToManyAddOpLocationPlaces(t *testing.T) {
 			t.Error("relationship was not added properly to the foreign slice")
 		}
 
-		if a.R.LocationPlaces[i*2] != first {
+		if a.R.LocationInformations[i*2] != first {
 			t.Error("relationship struct slice not set to correct value")
 		}
-		if a.R.LocationPlaces[i*2+1] != second {
+		if a.R.LocationInformations[i*2+1] != second {
 			t.Error("relationship struct slice not set to correct value")
 		}
 
-		count, err := a.LocationPlaces().Count(ctx, tx)
+		count, err := a.LocationInformations().Count(ctx, tx)
 		if err != nil {
 			t.Fatal(err)
 		}

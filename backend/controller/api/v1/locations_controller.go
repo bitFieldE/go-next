@@ -3,40 +3,38 @@ package v1
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"os"
 
 	_ "github.com/lib/pq"
 
 	db "github.com/bitFieldE/go-next/backend/db"
 	models "github.com/bitFieldE/go-next/backend/models"
+	utils "github.com/bitFieldE/go-next/backend/utils"
 	"github.com/gin-gonic/gin"
 )
 
-var locationResponse models.LocationResponse
+var locationResponse utils.LocationResponse
 
 func GetCurrentLocation(c *gin.Context) {
-	url := fmt.Sprintf(
-		"%s?lat=%s&lon=%s&appid=%s&output=json",
-		os.Getenv("YAHOO_API_REVERSE_GEO_CODER_END_POINT"),
-		c.Query("lat"),
-		c.Query("lon"),
-		os.Getenv("YAHOO_API_KEY"),
-	)
+	url := utils.YahooApiUrl(c.Query("lat"), c.Query("lon"))
 
 	db := db.ConnectDB()
-	locations, _ := models.Locations().All(context.Background(), db)
+
+	// MEMO:現在位置が誤差の範囲内にある地域（選択候補）を取得する
+	locations, _ := models.Locations(
+		utils.NearbyLocationsQuery(c.GetFloat64("lat"), c.GetFloat64("lon"))...,
+	).All(context.Background(), db)
+
 	defer db.Close()
 
 	if locations != nil {
-		c.IndentedJSON(http.StatusOK, gin.H{"location": url})
+		c.IndentedJSON(http.StatusOK, locations)
 		return
 	}
 
 	resp, err := http.Get(url)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, errorResponse(err))
+		c.IndentedJSON(http.StatusNotFound, errorResponse(err))
 		return
 	}
 	defer resp.Body.Close()

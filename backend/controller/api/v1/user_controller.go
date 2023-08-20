@@ -23,7 +23,7 @@ func GetUser(c *gin.Context) {
 	db := db.ConnectDB()
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(404, gin.H{"error": "ID Not Found"})
+		c.IndentedJSON(http.StatusNotFound, errorResponse(err))
 		return
 	}
 	user, _ := models.FindUser(context.Background(), db, id)

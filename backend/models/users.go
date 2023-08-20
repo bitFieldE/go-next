@@ -86,14 +86,14 @@ var UserWhere = struct {
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	LocationPlaces string
+	LocationInformations string
 }{
-	LocationPlaces: "LocationPlaces",
+	LocationInformations: "LocationInformations",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	LocationPlaces LocationPlaceSlice `boil:"LocationPlaces" json:"LocationPlaces" toml:"LocationPlaces" yaml:"LocationPlaces"`
+	LocationInformations LocationInformationSlice `boil:"LocationInformations" json:"LocationInformations" toml:"LocationInformations" yaml:"LocationInformations"`
 }
 
 // NewStruct creates a new relationship struct
@@ -101,11 +101,11 @@ func (*userR) NewStruct() *userR {
 	return &userR{}
 }
 
-func (r *userR) GetLocationPlaces() LocationPlaceSlice {
+func (r *userR) GetLocationInformations() LocationInformationSlice {
 	if r == nil {
 		return nil
 	}
-	return r.LocationPlaces
+	return r.LocationInformations
 }
 
 // userL is where Load methods for each relationship are stored.
@@ -397,23 +397,23 @@ func (q userQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
-// LocationPlaces retrieves all the location_place's LocationPlaces with an executor.
-func (o *User) LocationPlaces(mods ...qm.QueryMod) locationPlaceQuery {
+// LocationInformations retrieves all the location_information's LocationInformations with an executor.
+func (o *User) LocationInformations(mods ...qm.QueryMod) locationInformationQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
 		queryMods = append(queryMods, mods...)
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"location_places\".\"user_id\"=?", o.ID),
+		qm.Where("\"location_information\".\"user_id\"=?", o.ID),
 	)
 
-	return LocationPlaces(queryMods...)
+	return LocationInformations(queryMods...)
 }
 
-// LoadLocationPlaces allows an eager lookup of values, cached into the
+// LoadLocationInformations allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadLocationPlaces(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+func (userL) LoadLocationInformations(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
 	var slice []*User
 	var object *User
 
@@ -467,8 +467,8 @@ func (userL) LoadLocationPlaces(ctx context.Context, e boil.ContextExecutor, sin
 	}
 
 	query := NewQuery(
-		qm.From(`location_places`),
-		qm.WhereIn(`location_places.user_id in ?`, args...),
+		qm.From(`location_information`),
+		qm.WhereIn(`location_information.user_id in ?`, args...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -476,22 +476,22 @@ func (userL) LoadLocationPlaces(ctx context.Context, e boil.ContextExecutor, sin
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load location_places")
+		return errors.Wrap(err, "failed to eager load location_information")
 	}
 
-	var resultSlice []*LocationPlace
+	var resultSlice []*LocationInformation
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice location_places")
+		return errors.Wrap(err, "failed to bind eager loaded slice location_information")
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on location_places")
+		return errors.Wrap(err, "failed to close results in eager load on location_information")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for location_places")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for location_information")
 	}
 
-	if len(locationPlaceAfterSelectHooks) != 0 {
+	if len(locationInformationAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
 				return err
@@ -499,10 +499,10 @@ func (userL) LoadLocationPlaces(ctx context.Context, e boil.ContextExecutor, sin
 		}
 	}
 	if singular {
-		object.R.LocationPlaces = resultSlice
+		object.R.LocationInformations = resultSlice
 		for _, foreign := range resultSlice {
 			if foreign.R == nil {
-				foreign.R = &locationPlaceR{}
+				foreign.R = &locationInformationR{}
 			}
 			foreign.R.User = object
 		}
@@ -512,9 +512,9 @@ func (userL) LoadLocationPlaces(ctx context.Context, e boil.ContextExecutor, sin
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
 			if local.ID == foreign.UserID {
-				local.R.LocationPlaces = append(local.R.LocationPlaces, foreign)
+				local.R.LocationInformations = append(local.R.LocationInformations, foreign)
 				if foreign.R == nil {
-					foreign.R = &locationPlaceR{}
+					foreign.R = &locationInformationR{}
 				}
 				foreign.R.User = local
 				break
@@ -525,11 +525,11 @@ func (userL) LoadLocationPlaces(ctx context.Context, e boil.ContextExecutor, sin
 	return nil
 }
 
-// AddLocationPlaces adds the given related objects to the existing relationships
+// AddLocationInformations adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
-// Appends related to o.R.LocationPlaces.
+// Appends related to o.R.LocationInformations.
 // Sets related.R.User appropriately.
-func (o *User) AddLocationPlaces(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*LocationPlace) error {
+func (o *User) AddLocationInformations(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*LocationInformation) error {
 	var err error
 	for _, rel := range related {
 		if insert {
@@ -539,9 +539,9 @@ func (o *User) AddLocationPlaces(ctx context.Context, exec boil.ContextExecutor,
 			}
 		} else {
 			updateQuery := fmt.Sprintf(
-				"UPDATE \"location_places\" SET %s WHERE %s",
+				"UPDATE \"location_information\" SET %s WHERE %s",
 				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
-				strmangle.WhereClause("\"", "\"", 2, locationPlacePrimaryKeyColumns),
+				strmangle.WhereClause("\"", "\"", 2, locationInformationPrimaryKeyColumns),
 			)
 			values := []interface{}{o.ID, rel.ID}
 
@@ -560,15 +560,15 @@ func (o *User) AddLocationPlaces(ctx context.Context, exec boil.ContextExecutor,
 
 	if o.R == nil {
 		o.R = &userR{
-			LocationPlaces: related,
+			LocationInformations: related,
 		}
 	} else {
-		o.R.LocationPlaces = append(o.R.LocationPlaces, related...)
+		o.R.LocationInformations = append(o.R.LocationInformations, related...)
 	}
 
 	for _, rel := range related {
 		if rel.R == nil {
-			rel.R = &locationPlaceR{
+			rel.R = &locationInformationR{
 				User: o,
 			}
 		} else {
