@@ -1,0 +1,8 @@
+{
+  "index" : {
+    "title": "ホーム",
+    "description": "私のウェブサイトへようこそ！",
+    "geolocation_no_support_error": "Geolocationのサポートがされていません",
+    "geolocation_failure": "現在の位置情報の取得に失敗しました"
+  }
+}

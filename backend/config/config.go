@@ -48,8 +48,7 @@ func init() {
 	Db.User = os.Getenv("DATABASE_USER")
 	Db.Port = os.Getenv("DATABASE_PORT")
 	Db.Name = os.Getenv("DATABASE_NAME")
-	pass := os.Getenv("DATABASE_PASSWORD")
-	fmt.Println("pass: ", pass)
+
 	if err != nil {
 		panic(err)
 	}

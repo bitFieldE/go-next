@@ -24,8 +24,16 @@ func InitRouter(r *gin.Engine) {
 	r.Use(printReqCtxMiddleware)
 	namespace := r.Group("/api/v1")
 	{
-		namespace.GET("/", v1.GetTop)
+		auth := namespace.Group("/auth")
+		{
+			auth.GET("/signup", v1.SignUpHandler)
+			auth.POST("/login", v1.LoginHandler)
+		}
+		namespace.GET("/top", v1.GetTop)
 		namespace.GET("/users", v1.GetUsers)
+		namespace.GET("/users/:id", v1.GetUser)
+		namespace.GET("/locations/current_location", v1.GetCurrentLocation)
+		namespace.POST("/locations", v1.ResiterLocation)
 	}
 
 }
