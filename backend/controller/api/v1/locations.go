@@ -49,5 +49,6 @@ func GetCurrentLocation(c *gin.Context) {
 
 func ResiterLocation(c *gin.Context) {
 	db := db.ConnectDB()
+
 	defer db.Close()
 }
