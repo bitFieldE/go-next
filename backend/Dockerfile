@@ -1,5 +1,5 @@
 # ベースとなるDockerイメージ指定
-FROM golang:1.20.3-alpine as dev
+FROM golang:1.21.3-alpine as dev
 
 COPY . /github.com/bitFieldE/go-next/backend
 WORKDIR /github.com/bitFieldE/go-next/backend
